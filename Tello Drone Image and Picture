@@ -1,0 +1,90 @@
+ File name:  tello_live_video_3_copy.py
+import socket
+import threading
+import time
+import cv2
+import sys
+import time
+import platform
+import numpy as np
+from djitellopy import Tello
+
+
+tello_ip = '192.168.10.1'
+tello_port = 8889
+
+tello_address = (tello_ip, tello_port)
+
+# Receiving from tello
+VS_UDP_IP = '0.0.0.0'
+VS_UDP_PORT = 11111
+
+# Preparing Objects for VideoCapture
+cap = None
+# Object preparation for data receiving
+response = None
+
+drone_instance = Tello()
+time.sleep(2)
+drone_instance.connect()
+# drone_instance.takeoff()
+drone_instance.streamon()
+
+# # Create sockets for communication
+# # Address family: AF_INET (IPv4), Socket type: SOCK_DGRAM (UDP)
+serversocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+
+def socketclose():
+    serversocket.close()
+
+
+# Functions for receiving data
+
+def run_udp_receiver():
+    while True:
+        try:
+            response, _ = serversocket.recvfrom(1024)
+            print(response.decode(encoding="utf-8"))
+
+
+        except Exception as e:
+            # socketclose()
+            print("**** Exit recv_****")
+            print(e)
+            break
+
+
+thread = threading.Thread(target=run_udp_receiver, args=())
+thread.daemon = True
+thread.start()
+
+# # Start of video streaming
+# serversocket.sendto('streamon'.encode('utf-8'), tello_address)
+
+udp_video_address = ('udp://@' + VS_UDP_IP + ':' + str(VS_UDP_PORT))
+
+# if cap is None:
+# cap = cv2.VideoCapture(udp_video_address)
+# if not cap.isOpened():
+# cap.open(udp_video_address)
+# while True:
+# ret, frame = cap.read()
+# if ret:
+# Any preprocessing you want to make on the frame goes here
+# frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+
+# cv2.imshow('tello', frame)
+# if cv2.waitKey(1) & 0xFF == ord('q'):
+# break
+# cap.release()
+# cv2.destroyAllWindows()
+
+# Stop video streaming
+# socket.sendto('streamoff'.encode('utf-8'), tello_address)
+
+# Landing
+# socket.sendto('land'.encode('utf-8'), tello_address)
+# video_capture ()
