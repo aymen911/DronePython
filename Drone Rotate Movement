@@ -1,0 +1,15 @@
+from djitellopy import tello
+from time import sleep
+
+aiman = tello.Tello()
+aiman.connect()
+print(aiman.get_battery())
+
+aiman.takeoff()
+aiman.send_rc_control(0, 50, 0, 0)
+sleep(2)
+aiman.send_rc_control(0, 0, 0, 30)
+sleep(2)
+aiman.send_rc_control(0, 0, 0, 0)
+
+aiman.land()
